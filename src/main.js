@@ -18,8 +18,12 @@ Vue.use(ElementUI)
 
 Vue.config.productionTip = false
 
+// 创建Vue根实例
+// 把router配置到根实例中
+// 通过render方法把App根组件渲染到#app入口节点
 new Vue({
   router,
   store,
   render: h => h(App)
+  // el: '#app'  //等价于$mount('#app')
 }).$mount('#app')
