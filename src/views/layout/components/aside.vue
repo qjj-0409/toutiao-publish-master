@@ -10,6 +10,7 @@
   active-text-color="#ffd04b"
   router
   :collapse="isCollapse"
+  class="aside-ul"
   >
 
   <el-menu-item index="/">
@@ -61,6 +62,9 @@ export default {
 }
 </script>
 <style lang='less' scoped>
+.aside-ul {
+  height: 100%;
+}
 // .aside-logo {
 //   background: url(./logo_admin.png) no-repeat 50%/140px auto;
 //   width: 100%;

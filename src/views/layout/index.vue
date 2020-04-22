@@ -93,7 +93,7 @@ export default {
 .el-aside {
     background-color: #D3DCE6;
     .aside-menu {
-        height: 100%;
+      height: 100%;
     }
 }
 .header {
