@@ -1,13 +1,43 @@
 <template>
   <el-container class="layout-container">
-  <el-aside width="200px">
-    <app-aside class="aside-menu"></app-aside>
+  <el-aside width="auto">
+    <app-aside
+    class="aside-menu"
+    :isCollapse="isCollapse"
+    ></app-aside>
   </el-aside>
   <el-container>
-    <el-header>
-      <app-header></app-header>
+    <el-header class="header">
+      <div>
+      <i
+        :class="{
+          'el-icon-s-fold': isCollapse,
+          'el-icon-s-unfold': !isCollapse
+        }"
+        @click="isCollapse = !isCollapse"
+      ></i>
+      <span>江苏传智播客科技教育有限公司</span>
+    </div>
+    <el-dropdown>
+      <div class="avatar-wrap">
+        <img :src="user.photo" class="avatar">
+        <span>{{user.name}}</span>
+        <i class="el-icon-arrow-down el-icon--right"></i>
+      </div>
+      <el-dropdown-menu slot="dropdown">
+        <el-dropdown-item>
+          <i class="el-icon-setting"></i>
+          <span>个人设置</span>
+        </el-dropdown-item>
+        <el-dropdown-item @click.native="onLogout">
+          <i class="el-icon-unlock"></i>
+          <span>退出登录</span>
+        </el-dropdown-item>
+      </el-dropdown-menu>
+    </el-dropdown>
     </el-header>
     <el-main>
+      <!-- 子路由出口 -->
       <router-view></router-view>
     </el-main>
   </el-container>
@@ -16,21 +46,38 @@
 
 <script>
 import AppAside from './components/aside'
-import AppHeader from './components/header'
+import { getUserProfile } from '@/api/user'
 export default {
   name: 'layoutIndex',
   props: {},
   components: {
-    AppAside,
-    AppHeader
+    AppAside
   },
   data () {
-    return {}
+    return {
+      user: {}, // 当前登录用户信息
+      isCollapse: false // 侧边菜单栏的展示状态
+    }
   },
   computed: {},
   watch: {},
-  methods: {},
-  created () {},
+  methods: {
+    loadUserProfile () {
+      getUserProfile().then(res => {
+        this.user = res.data.data
+      })
+    },
+    onLogout () {
+      // 删除token
+      window.localStorage.removeItem('user')
+      // 跳转到登录页面
+      this.$router.push('/login')
+    }
+  },
+  created () {
+    // 组件初始化后，请求获取用户信息
+    this.loadUserProfile()
+  },
   mounted () {},
   beforeDestroy () {}
 }
@@ -49,9 +96,19 @@ export default {
         height: 100%;
     }
 }
-.el-header {
+.header {
     background-color: #fff;
     border-bottom: 1px solid #ccc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        vertical-align: middle;
+        margin-right: 10px;
+    }
 }
 .el-main {
     background-color: #E9EEF3;

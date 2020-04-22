@@ -83,6 +83,9 @@ export default {
           type: 'success'
         })
 
+        // 添加token到本地存储
+        window.localStorage.setItem('user', JSON.stringify(res.data.data))
+
         // 关闭 loading
         this.loginLoading = false
 
