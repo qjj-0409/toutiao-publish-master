@@ -75,7 +75,9 @@
            style="width: 100px; height: 100px"
            :src="scope.row.cover.images[0]"
            fit="cover">
-           <div slot="placeholder" class="image-slot">加载中</div>
+           <div slot="placeholder" class="image-slot">加载中
+             <span class="dot">...</span>
+           </div>
            </el-image>
             <!-- <img v-if="scope.row.cover.images[0]" :src="scope.row.cover.images[0]"
             class="article-cover"
@@ -116,7 +118,7 @@
         <el-table-column
           prop="address"
           label="操作">
-          <template>
+          <template slot-scope="scope">
             <el-button
             type="primary"
             icon="el-icon-edit"
@@ -126,7 +128,9 @@
             type="danger"
             icon="el-icon-delete"
             circle
-            plain></el-button>
+            plain
+            @click="onDelArticle(scope.row.id)"
+            ></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -145,6 +149,7 @@
         :total="totalCount"
         :page-size="pageSize"
         :disabled="isLoading"
+        :current-page.sync="currentPage"
         @current-change="onCurrentChange"
         >
       </el-pagination>
@@ -154,7 +159,7 @@
 </template>
 
 <script>
-import { getArticle, getChannel } from '@/api/article'
+import { getArticle, getChannel, delArticle } from '@/api/article'
 export default {
   name: 'ArticleIndex',
   props: {},
@@ -185,7 +190,8 @@ export default {
       channels: [], // 文章的频道列表
       channelId: null, // 频道的id
       rangeDate: null, // 筛选的范围日期
-      isLoading: false // 是否显示加载
+      isLoading: false, // 是否显示加载
+      currentPage: 1 // 当前页码值
     }
   },
   computed: {},
@@ -222,6 +228,26 @@ export default {
       getChannel().then(res => {
         this.channels = res.data.data.channels
       })
+    },
+    onDelArticle (articleId) { // 删除文章方法
+      console.log(articleId)
+      console.log(articleId.toString())
+      this.$confirm('你确定删除吗？', '删除提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        delArticle(articleId.toString()).then(res => {
+          console.log(res)
+          // 删除成功，更新当前页的文章数据列表
+          this.loadArticles(this.currentPage)
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
     }
   },
   mounted () {}
@@ -233,7 +259,12 @@ export default {
 }
 .article-cover {
   width: 100px;
+  height: 100px;
   background-size: cover;
+}
+.image-slot {
+  line-height: 100px;
+  text-align: center;
 }
 .article-page {
   margin: 20px;

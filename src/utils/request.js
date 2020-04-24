@@ -1,10 +1,25 @@
 // 基于axios封装的请求模块
 import axios from 'axios'
+// 导入json-bigint插件，处理id超出js准确表示的最大范围
+import JSONbig from 'json-bigint'
 
 // 创建一个axios实例，说白了就是赋值一个axios
 // 我们通过设置这个实例去发请求，把需要的配置配置到这个实例
 const request = axios.create({
-  baseURL: 'http://ttapi.research.itcast.cn/' // 请求的基准地址
+  baseURL: 'http://ttapi.research.itcast.cn/', // 请求的基准地址
+  // `transformResponse` 在传递给 then/catch 前，允许修改响应数据
+  // 参数data就是后端响应的数据
+  transformResponse: [function (data) {
+    // 对 data 进行任意转换处理
+    try {
+      // 如果转换成功，则直接把结果返回
+      return JSONbig.parse(data)
+    } catch (error) {
+      console.log('转换失败', error)
+      // 如果转换失败，则将原数据直接返回给请求使用
+      return data
+    }
+  }]
 })
 
 // 请求拦截器

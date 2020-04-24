@@ -66,8 +66,8 @@ export default {
   height: 100%;
 }
 // .aside-logo {
-//   background: url(./logo_admin.png) no-repeat 50%/140px auto;
 //   width: 100%;
 //   height: 60px;
+//   background: url(./logo_admin.png) no-repeat;
 // }
 </style>
