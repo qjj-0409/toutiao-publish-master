@@ -34,6 +34,7 @@ const routes = [
 
 const router = new VueRouter({
   routes
+  // linkActiveClass: 'active'
 })
 
 // 路由导航守卫：说白了所有页面的导航都会讲过这里

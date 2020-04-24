@@ -68,10 +68,21 @@ export default {
       })
     },
     onLogout () {
-      // 删除token
-      window.localStorage.removeItem('user')
-      // 跳转到登录页面
-      this.$router.push('/login')
+      this.$confirm('确定退出吗？', '退出提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 删除token
+        window.localStorage.removeItem('user')
+        // 跳转到登录页面
+        this.$router.push('/login')
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消退出'
+        })
+      })
     }
   },
   created () {
