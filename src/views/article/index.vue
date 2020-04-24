@@ -37,15 +37,21 @@
         </el-form-item>
         <el-form-item label="日期">
           <el-date-picker
-            v-model="form.date1"
-            type="daterange"
+            v-model="rangeDate"
+            type="datetimerange"
             range-separator="至"
             start-placeholder="开始日期"
-            end-placeholder="结束日期">
+            end-placeholder="结束日期"
+            format="yyyy-MM-dd"
+            value-format="yyyy-MM-dd"
+            >
           </el-date-picker>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="loadArticles(1)">查询</el-button>
+          <el-button
+          type="primary"
+          :disabled="isLoading"
+          @click="loadArticles(1)">查询</el-button>
         </el-form-item>
       </el-form>
       <!-- /数据筛选表单 -->
@@ -55,21 +61,29 @@
         <span>根据选择条件共查询到{{totalCount}}条结果：</span>
       </div>
       <!-- 数据列表 -->
+      <!-- Element 提供了两种调用 Loading 的方法：指令和服务。对于自定义指令v-loading，只需要绑定Boolean即可。 -->
       <el-table
       :data="articles"
       stripe
+      v-loading="isLoading"
       style="width: 100%">
         <el-table-column
           prop="date"
           label="封面">
           <template slot-scope="scope">
-            <img v-if="scope.row.cover.images[0]" :src="scope.row.cover.images[0]"
+          <el-image
+           style="width: 100px; height: 100px"
+           :src="scope.row.cover.images[0]"
+           fit="cover">
+           <div slot="placeholder" class="image-slot">加载中</div>
+           </el-image>
+            <!-- <img v-if="scope.row.cover.images[0]" :src="scope.row.cover.images[0]"
             class="article-cover"
             alt="">
             <img v-else
             src="./no-cover.gif"
             class="article-cover"
-            alt="">
+            alt=""> -->
             <!--
               下面这种情况是在运行期间动态改变处理的。
               而本地图片必须在打包的时候就存在。
@@ -130,6 +144,7 @@
         layout="prev, pager, next"
         :total="totalCount"
         :page-size="pageSize"
+        :disabled="isLoading"
         @current-change="onCurrentChange"
         >
       </el-pagination>
@@ -168,7 +183,9 @@ export default {
       pageSize: 10, // 每页显示条数
       status: null, // 查询文章的状态，不传就是全部
       channels: [], // 文章的频道列表
-      channelId: null // 频道的id
+      channelId: null, // 频道的id
+      rangeDate: null, // 筛选的范围日期
+      isLoading: false // 是否显示加载
     }
   },
   computed: {},
@@ -179,15 +196,23 @@ export default {
   },
   methods: {
     loadArticles (page = 1) {
+      // 开启loading加载
+      this.isLoading = true
+      // 发送axios请求
       getArticle({
         page,
         per_page: this.pageSize,
         status: this.status,
-        channel_id: this.channelId
+        channel_id: this.channelId,
+        begin_pubdate: this.rangeDate ? this.rangeDate[0] : null, // 开始日期
+        end_pubdate: this.rangeDate ? this.rangeDate[1] : null // 截至日期
       }).then(res => {
         const { results, total_count: totalCount } = res.data.data
         this.articles = results
         this.totalCount = totalCount
+
+        // 请求成功，关闭loading加载
+        this.isLoading = false
       })
     },
     onCurrentChange (page) {
