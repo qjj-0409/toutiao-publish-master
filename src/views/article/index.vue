@@ -44,7 +44,7 @@
     </el-card>
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <span>根据选择条件共查询到0条结果：</span>
+        <span>根据选择条件共查询到{{totalCount}}条结果：</span>
       </div>
       <!-- 数据列表 -->
       <el-table
@@ -54,7 +54,23 @@
         <el-table-column
           prop="date"
           label="封面">
-          <img src="" alt="">
+          <template slot-scope="scope">
+            <img v-if="scope.row.cover.images[0]" :src="scope.row.cover.images[0]"
+            class="article-cover"
+            alt="">
+            <img v-else
+            src="./no-cover.gif"
+            class="article-cover"
+            alt="">
+            <!--
+              下面这种情况是在运行期间动态改变处理的。
+              而本地图片必须在打包的时候就存在。
+             -->
+            <!-- <img
+              class="article-cover"
+              :src="scope.row.cover.images[0] || './no-cover.gif'" alt=""
+            > -->
+          </template>
         </el-table-column>
         <el-table-column
           prop="title"
@@ -94,12 +110,20 @@
       </el-table>
       <!-- /数据列表 -->
 
+      <!--
+        total 用来设定总数据的条数
+        他默认按照 10 条每页计算总页码
+        page-size 每页显示条目个数，支持 .sync 修饰符，默认每页 10 条数据
+       -->
       <!-- 分页列表 -->
       <el-pagination
         background
         class="article-page"
         layout="prev, pager, next"
-        :total="1000">
+        :total="totalCount"
+        :page-size="pageSize"
+        @current-change="onCurrentChange"
+        >
       </el-pagination>
       <!-- /分页列表 -->
     </el-card>
@@ -131,7 +155,9 @@ export default {
         { status: 2, text: '审核通过', type: 'success' },
         { status: 3, text: '审核失败', type: 'danger' },
         { status: 4, text: '已删除', type: 'info' }
-      ]
+      ],
+      totalCount: 0, // 总数据条数
+      pageSize: 20 // 每页显示条数
     }
   },
   computed: {},
@@ -140,10 +166,18 @@ export default {
     this.loadArticles()
   },
   methods: {
-    loadArticles () {
-      getArticle().then(res => {
-        this.articles = res.data.data.results
+    loadArticles (page = 1) {
+      getArticle({
+        page,
+        per_page: this.pageSize
+      }).then(res => {
+        const { results, total_count: totalCount } = res.data.data
+        this.articles = results
+        this.totalCount = totalCount
       })
+    },
+    onCurrentChange (page) {
+      this.loadArticles(page)
     }
   },
   mounted () {}
@@ -152,6 +186,10 @@ export default {
 <style lang='less' scoped>
 .first-card {
   margin-bottom: 20px;
+}
+.article-cover {
+  width: 100px;
+  background-size: cover;
 }
 .article-page {
   margin: 20px;
