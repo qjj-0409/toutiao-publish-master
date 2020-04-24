@@ -14,3 +14,11 @@ export const getArticle = params => {
     params
   })
 }
+
+// 获取频道列表
+export const getChannel = () => {
+  return request({
+    method: 'GET',
+    url: '/mp/v1_0/channels'
+  })
+}
