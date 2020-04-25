@@ -230,8 +230,8 @@ export default {
       })
     },
     onDelArticle (articleId) { // 删除文章方法
-      console.log(articleId)
-      console.log(articleId.toString())
+      // console.log(articleId)
+      // console.log(articleId.toString())
       this.$confirm('你确定删除吗？', '删除提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
