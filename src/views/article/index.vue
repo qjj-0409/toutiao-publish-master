@@ -123,7 +123,9 @@
             type="primary"
             icon="el-icon-edit"
             circle
-            plain></el-button>
+            plain
+            @click="$router.push('/publish?id=' + scope.row.id.toString())"
+            ></el-button>
             <el-button
             type="danger"
             icon="el-icon-delete"

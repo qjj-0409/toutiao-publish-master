@@ -42,3 +42,23 @@ export const publishArticle = (data, draft = false) => {
     data
   })
 }
+
+// 根据id获取指定文章
+export const getOneArticle = id => {
+  return request({
+    method: 'GET',
+    url: `/mp/v1_0/articles/${id}`
+  })
+}
+
+// 更新指定文章内容
+export const updateArticle = (id, data, draft = false) => {
+  return request({
+    method: 'PUT',
+    url: `/mp/v1_0/articles/${id}`,
+    params: {
+      draft
+    },
+    data
+  })
+}

@@ -6,7 +6,7 @@
         <el-breadcrumb-item>发表文章</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
-    <el-form ref="form" :model="form" label-width="80px">
+    <el-form ref="form" :model="article" label-width="80px">
       <el-form-item label="标题">
         <el-input v-model="article.title"></el-input>
       </el-form-item>
@@ -31,7 +31,10 @@
            ></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item>
+      <el-form-item v-if="$route.query.id">
+        <el-button type="warning" @click="onUpdate(false)">确认修改</el-button>
+      </el-form-item>
+      <el-form-item v-else>
         <el-button type="primary" @click="onPublish(false)">发表</el-button>
         <el-button @click="onPublish(true)">存入草稿</el-button>
       </el-form-item>
@@ -42,7 +45,9 @@
 <script>
 import {
   getChannel,
-  publishArticle
+  publishArticle,
+  getOneArticle,
+  updateArticle
 } from '@/api/article'
 export default {
   name: 'PublishIndex',
@@ -50,16 +55,6 @@ export default {
   components: {},
   data () {
     return {
-      form: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
-      },
       channels: [],
       article: {
         title: '',
@@ -76,6 +71,10 @@ export default {
   watch: {},
   created () {
     this.onloadChannels()
+    if (this.$route.query.id) {
+      // 路径中有id，表示是编辑文章
+      this.loadArcitle()
+    }
   },
   methods: {
     onloadChannels () {
@@ -86,17 +85,33 @@ export default {
     onPublish (draft) {
       publishArticle(this.article, draft).then(res => {
         console.log(res)
-        if (draft) {
-          this.$message({
-            message: '存入草稿成功',
-            type: 'success'
-          })
-        } else {
-          this.$message({
-            message: '发表成功',
-            type: 'success'
-          })
-        }
+        this.$message({
+          message: `${draft ? '存入草稿' : '发布'}成功`,
+          type: 'success'
+        })
+        // 发表文章成功，跳转到内容管理页面
+        this.$router.push('/article')
+      }).catch(err => {
+        console.log('错误：' + err)
+        this.$message.error('发布文章失败')
+      })
+    },
+    loadArcitle () {
+      getOneArticle(this.$route.query.id).then(res => {
+        this.article = res.data.data
+      })
+    },
+    onUpdate (draft) {
+      updateArticle(this.$route.query.id, this.article, draft).then(res => {
+        this.$message({
+          message: '修改文章成功',
+          type: 'success'
+        })
+        // 修改文章成功，跳转到内容管理页面
+        this.$router.push('/article')
+      }).catch(err => {
+        console.log('错误信息：' + err)
+        this.$message.error('修改文章内容失败')
       })
     }
   },
