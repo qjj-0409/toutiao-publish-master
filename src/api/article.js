@@ -30,3 +30,15 @@ export const delArticle = articleId => {
     url: `/mp/v1_0/articles/${articleId}`
   })
 }
+
+// 发表文章
+export const publishArticle = (data, draft = false) => {
+  return request({
+    method: 'POST',
+    url: '/mp/v1_0/articles',
+    params: {
+      draft
+    },
+    data
+  })
+}
