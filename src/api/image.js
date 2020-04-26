@@ -12,3 +12,12 @@ export const uploadImage = data => {
     data
   })
 }
+
+// 获取图片列表接口
+export const getImages = params => {
+  return request({
+    method: 'GET',
+    url: '/mp/v1_0/user/images',
+    params
+  })
+}

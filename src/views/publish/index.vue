@@ -6,11 +6,17 @@
         <el-breadcrumb-item>{{$route.query.id ? '修改文章' : '发表文章'}}</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
-    <el-form ref="form" :model="article" label-width="80px">
-      <el-form-item label="标题">
-        <el-input v-model="article.title"></el-input>
+    <el-form
+      ref="publish-form"
+      :model="article"
+      :rules="formRules"
+      label-width="60px">
+      <el-form-item label="标题" prop="title">
+        <el-input
+          v-model="article.title"
+        ></el-input>
       </el-form-item>
-      <el-form-item label="内容">
+      <el-form-item label="内容" prop="content">
         <!-- 5.在模板中使用组件element-tiptap -->
         <el-tiptap
          v-model="article.content"
@@ -27,8 +33,10 @@
         <el-radio :label="-1">自动</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="频道">
-        <el-select v-model="article.channel_id" placeholder="请选择频道">
+      <el-form-item label="频道" prop="channel_id">
+        <el-select
+          v-model="article.channel_id"
+          placeholder="请选择频道">
           <el-option
            v-for="(article, index) in channels"
            :key="index"
@@ -134,7 +142,29 @@ export default {
         new CodeBlock(), // 代码块
         new Preview(), // 预览
         new Fullscreen() // 全屏显示
-      ]
+      ],
+      formRules: {
+        title: [
+          { required: true, message: '请输入标题', trigger: 'blur' },
+          { min: 5, max: 15, message: '长度在 5 到 15 个字符', trigger: 'blur' }
+        ],
+        content: [
+          {
+            validator: (rule, value, callback) => {
+              if (value === '<p></p>') {
+                callback(new Error('请输入文章内容'))
+              } else {
+                callback()
+              }
+            },
+            trigger: 'blur'
+          },
+          { required: true, message: '请输入文章内容', trigger: 'blur' }
+        ],
+        channel_id: [
+          { required: true, message: '请选择频道', trigger: 'blur' }
+        ]
+      }
     }
   },
   computed: {},
@@ -153,17 +183,24 @@ export default {
       })
     },
     onPublish (draft) {
-      publishArticle(this.article, draft).then(res => {
-        console.log(res)
-        this.$message({
-          message: `${draft ? '存入草稿' : '发布'}成功`,
-          type: 'success'
+      // 表单验证
+      this.$refs['publish-form'].validate(valid => {
+        if (!valid) {
+          return
+        }
+        // 验证通过，请求发布
+        publishArticle(this.article, draft).then(res => {
+          console.log(res)
+          this.$message({
+            message: `${draft ? '存入草稿' : '发布'}成功`,
+            type: 'success'
+          })
+          // 发表文章成功，跳转到内容管理页面
+          this.$router.push('/article')
+        }).catch(err => {
+          console.log('错误：' + err)
+          this.$message.error('发布文章失败')
         })
-        // 发表文章成功，跳转到内容管理页面
-        this.$router.push('/article')
-      }).catch(err => {
-        console.log('错误：' + err)
-        this.$message.error('发布文章失败')
       })
     },
     loadArcitle () {
