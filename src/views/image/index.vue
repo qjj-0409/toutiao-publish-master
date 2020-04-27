@@ -110,8 +110,7 @@ export default {
       pageSize: 12, // 每页显示条数
       totalCount: 0, // 总素材条数
       currentPage: 1, // 当前页
-      loading: false, // 是否显示加载中
-      imageCollect: false // 当前图片是否收藏
+      loading: false // 是否显示加载中
     }
   },
   computed: {},
