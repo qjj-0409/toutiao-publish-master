@@ -38,6 +38,7 @@
           style="height: 100px"
           :src="img.url"
           fit="cover"
+          lazy
           ></el-image>
           <div class="img-mask">
             <span
@@ -116,10 +117,10 @@ export default {
   computed: {},
   watch: {},
   created () {
-    this.loadImages()
+    this.loadImages(1)
   },
   methods: {
-    loadImages (page, collect = false) {
+    loadImages (page = 1, collect = false) {
       // 加载中
       this.loading = true
       getImages({
@@ -146,9 +147,15 @@ export default {
     },
     isCollect (isCollected, imageId) {
       isCollectImage(isCollected, imageId).then(res => {
-        console.log(res)
+        this.$message({
+          message: `${isCollected ? '收藏' : '取消收藏'}成功`,
+          type: 'success'
+        })
         // 更改收藏成功，刷新页面
         this.loadImages(this.currentPage)
+      }).catch(err => {
+        console.log('错误：' + err)
+        this.$message.error('操作失败')
       })
     },
     delImage (imageId) {
@@ -197,13 +204,10 @@ export default {
   background: rgba(0,0,0,.3);
   width: 90%;
   text-align: center;
-  .icon-xing {
-    margin: 0 15px;
-    color: #fff;
-  }
+  color: #fff;
+  .icon-xing,
   .icon-del {
     margin: 0 15px;
-    color: #fff;
   }
 }
 </style>

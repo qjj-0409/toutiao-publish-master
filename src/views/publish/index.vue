@@ -146,7 +146,7 @@ export default {
       formRules: {
         title: [
           { required: true, message: '请输入标题', trigger: 'blur' },
-          { min: 5, max: 15, message: '长度在 5 到 15 个字符', trigger: 'blur' }
+          { min: 5, max: 30, message: '长度在 5 到 30 个字符', trigger: 'blur' }
         ],
         content: [
           {
