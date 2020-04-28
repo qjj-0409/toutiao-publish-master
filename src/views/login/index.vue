@@ -27,9 +27,9 @@ export default {
   data () {
     return {
       user: {
-        mobile: '13911111111',
+        mobile: '13922222222',
         code: '246810',
-        agree: false
+        agree: true
       },
       loginLoading: false,
       fromRules: {
