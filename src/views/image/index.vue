@@ -28,6 +28,7 @@
          @click="dialogVisible = true"
         >添加素材</el-button>
       </div>
+      <!-- 素材列表 -->
       <el-row :gutter="20" v-model="images" v-loading="loading">
         <el-col :xs="12" :sm="6" :md="6" :lg="4"
           class="img-box"
@@ -41,18 +42,33 @@
           lazy
           ></el-image>
           <div class="img-mask">
-            <span
+            <!-- 收藏图标 -->
+            <!-- <span
               class="el-icon-star-off icon-xing"
               :style="img.is_collected ? 'color:red' : 'color:white'"
-              @click="isCollect(!img.is_collected, img.id)"
-            ></span>
-            <span
-              class="el-icon-delete icon-del"
-              @click="delImage(img.id)"
-            ></span>
+              @click="isCollect(img)"
+            ></span> -->
+            <el-button
+              class="el-icon-star-off icon"
+              :class="{red: img.is_collected}"
+              circle
+              size="mini"
+              :loading="img.isLoading"
+              @click="isCollect(img)"
+            ></el-button>
+            <!-- 删除图标 -->
+            <el-button
+              class="el-icon-delete icon-del icon"
+              circle
+              :loading="img.isLoading"
+              @click="delImage(img)"
+            ></el-button>
           </div>
         </el-col>
       </el-row>
+      <!-- /素材列表 -->
+
+      <!-- 分页组件 -->
       <el-pagination
         class="image-pag"
         background
@@ -64,6 +80,7 @@
         @current-change="onCurrentChange"
       >
       </el-pagination>
+      <!-- /分页组件 -->
     </el-card>
 
     <el-dialog
@@ -108,7 +125,7 @@ export default {
       uploadHeaders: {
         Authorization: `Bearer ${user.token}`
       },
-      pageSize: 12, // 每页显示条数
+      pageSize: 6, // 每页显示条数
       totalCount: 0, // 总素材条数
       currentPage: 1, // 当前页
       loading: false // 是否显示加载中
@@ -123,12 +140,16 @@ export default {
     loadImages (page = 1, collect = false) {
       // 加载中
       this.loading = true
+      this.currentPage = page
       getImages({
         page,
         per_page: this.pageSize,
         collect: this.collect
       }).then(res => {
         const { results, total_count: totalCount } = res.data.data
+        results.forEach(img => {
+          img.isLoading = false
+        })
         this.images = results
         this.totalCount = totalCount
         // 关闭加载中
@@ -145,37 +166,43 @@ export default {
       // 当页码改变的时候重新渲染素材列表
       this.loadImages(page)
     },
-    isCollect (isCollected, imageId) {
-      isCollectImage(isCollected, imageId).then(res => {
+    isCollect (img) {
+      img.isLoading = true
+      isCollectImage(!img.is_collected, img.id).then(res => {
         this.$message({
-          message: `${isCollected ? '收藏' : '取消收藏'}成功`,
+          message: `${!img.is_collected ? '收藏' : '取消收藏'}成功`,
           type: 'success'
         })
-        // 更改收藏成功，刷新页面
-        this.loadImages(this.currentPage)
+        // 重置素材的收藏状态
+        img.is_collected = !img.is_collected
+        img.isLoading = false
       }).catch(err => {
+        img.isLoading = false
         console.log('错误：' + err)
         this.$message.error('操作失败')
       })
     },
-    delImage (imageId) {
+    delImage (img) {
+      img.isLoading = true
       this.$confirm('确定删除吗？', '删除提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        delImage(imageId).then(res => {
+        delImage(img.id).then(res => {
           this.$message({
             message: res.message,
             type: 'success'
           })
           // 删除成功，更新素材列表
           this.loadImages(this.currentPage)
+          img.isLoading = false
         }).catch(err => {
           console.log('错误：' + err)
           this.$message.error('删除失败')
         })
       }).catch(() => {
+        img.isLoading = false
         this.$message({
           type: 'info',
           message: '已取消删除'
@@ -203,11 +230,16 @@ export default {
   line-height: 28px;
   background: rgba(0,0,0,.3);
   width: 90%;
-  text-align: center;
-  color: #fff;
-  .icon-xing,
-  .icon-del {
-    margin: 0 15px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  .red {
+    color:red
+  }
+  .icon {
+    background-color: transparent;
+    border: 0;
+    font-size: 20px;
   }
 }
 </style>
