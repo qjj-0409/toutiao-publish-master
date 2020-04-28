@@ -12,22 +12,24 @@
       <el-row>
         <el-col :span="10">
           <!-- 表单区域 -->
-          <el-form ref="form" :model="form" label-width="80px">
-            <el-form-item label="编号">
-              123
+          <el-form ref="form" :model="user" label-width="80px">
+            <el-form-item label="编号:">
+              {{user.id}}
             </el-form-item>
-            <el-form-item label="手机">
-              456
+            <el-form-item label="手机:">
+              {{user.mobile}}
             </el-form-item>
-            <el-form-item label="媒体名称">
-              <el-input v-model="form.name"></el-input>
+            <el-form-item label="媒体名称:">
+              <el-input v-model="user.name"></el-input>
             </el-form-item>
-            <el-form-item label="媒体介绍">
-              <el-input type="textarea" v-model="form.desc"></el-input>
+            <el-form-item label="媒体介绍:">
+              <el-input type="textarea" v-model="user.intro"></el-input>
+            </el-form-item>
+            <el-form-item label="邮箱:">
+              <el-input v-model="user.email"></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="onSubmit">立即创建</el-button>
-              <el-button>取消</el-button>
+              <el-button type="primary" @click="onSubmit">保存设置</el-button>
             </el-form-item>
           </el-form>
           <!-- /表单区域 -->
@@ -38,9 +40,10 @@
             shape="square"
             :size="150"
             fit="cover"
-            src="http://toutiao.meiduo.site/Fpjp-yiQyQavWHaL99ut1giTDKml"
+            :src="user.photo"
           ></el-avatar>
-      <!-- /头像区域 -->
+          <p>点击修改头像</p>
+          <!-- /头像区域 -->
         </el-col>
       </el-row>
     </el-card>
@@ -48,6 +51,7 @@
 </template>
 
 <script>
+import { getUserProfile } from '@/api/user'
 export default {
   name: 'SettingIndex',
   props: {},
@@ -63,15 +67,32 @@ export default {
         type: [],
         resource: '',
         desc: ''
+      },
+      user: {
+        id: null, // id编号
+        name: '', // 媒体名称
+        intro: '', // 媒体介绍
+        photo: '', // 头像
+        email: '', // 邮箱
+        mobile: '' // 手机号
       }
     }
   },
   computed: {},
   watch: {},
-  created () {},
+  created () {
+    this.uploadUserInfo()
+  },
   methods: {
     onSubmit () {
       console.log('submit!')
+    },
+    // 获取用户个人信息
+    uploadUserInfo () {
+      getUserProfile().then(res => {
+        console.log(res)
+        this.user = res.data.data
+      })
     }
   },
   mounted () {}
