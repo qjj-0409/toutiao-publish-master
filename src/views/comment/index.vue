@@ -38,7 +38,10 @@
             <el-switch
               v-model="scope.row.comment_status"
               active-color="#13ce66"
-              inactive-color="#ff4949">
+              inactive-color="#ff4949"
+              :disabled="scope.row.loading"
+              @change="changeStatus(scope.row)"
+            >
             </el-switch>
           </template>
         </el-table-column>
@@ -48,7 +51,10 @@
 </template>
 
 <script>
-import { getArticle } from '@/api/article'
+import {
+  getArticle,
+  updateCommentStatus
+} from '@/api/article'
 export default {
   name: 'CommentIndex',
   props: {},
@@ -90,10 +96,25 @@ export default {
         per_page: this.perPage,
         response_type: 'comment'
       }).then(res => {
-        console.log(res)
+        const { results } = res.data.data
+        results.forEach(article => {
+          article.loading = false
+        })
         this.comments = res.data.data.results
       }).catch(err => {
         console.log('错误：' + err)
+      })
+    },
+    changeStatus (row) {
+      // 打开loading，禁用开关
+      row.loading = true
+      updateCommentStatus(row.id.toString(), row.comment_status).then(res => {
+        this.$message({
+          type: 'success',
+          message: row.comment_status ? '打开评论功能' : '关闭评论功能'
+        })
+        // 关闭loading，启用开关
+        row.loading = false
       })
     }
   },
