@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import { getArticle } from '@/api/comment.js'
+import { getArticle } from '@/api/article'
 export default {
   name: 'CommentIndex',
   props: {},
