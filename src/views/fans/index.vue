@@ -18,33 +18,49 @@
           label="粉丝列表"
           name="first"
         >
-          <el-row :gutter="20">
-            <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
-            <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
-            <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
-            <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
+          <el-row :gutter="20" v-model="fans" v-loading="loading">
+            <el-col
+              :xs="12"
+              :sm="8"
+              :md="6"
+              :lg="4"
+              v-for="(item, index) in fans"
+              :key="index"
+            >
+              <div class="block">
+                  <el-avatar
+                    :size="80"
+                    :src="item.photo"
+                  ></el-avatar>
+                  <p>{{item.name}}</p>
+                  <el-button
+                    type="primary"
+                    plain
+                    size="small"
+                  >
+                    +关注
+                  </el-button>
+              </div>
+            </el-col>
           </el-row>
+          <!-- 分页组件 -->
+          <el-pagination
+            class="fans-page"
+            background
+            layout="prev, pager, next"
+            :current-page.sync="currentPage"
+            :total="totalCount"
+            :disabled="loading"
+            @current-change="onCurrentChange"
+          >
+          </el-pagination>
+          <!-- /分页组件 -->
         </el-tab-pane>
         <el-tab-pane
           label="粉丝画像"
           name="second"
         >粉丝画像</el-tab-pane>
       </el-tabs>
-      <!-- 分页组件 -->
-      <!-- <el-pagination
-        class="page"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        background
-        :current-page.sync="page"
-        :page-sizes="[10, 20, 30, 50]"
-        :page-size.sync="perPage"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="totalCount"
-        :disabled="loading"
-      >
-      </el-pagination> -->
-      <!-- /分页组件 -->
     </el-card>
   </div>
 </template>
@@ -60,7 +76,9 @@ export default {
       activeName: 'first',
       fans: [], // 粉丝列表
       currentPage: 1, // 当前页码
-      pageSize: 20 // 每页显示数据量
+      pageSize: 20, // 每页显示数据量
+      totalCount: 0, // 总数据量
+      loading: false // 加载粉丝列表的loading
     }
   },
   computed: {},
@@ -74,18 +92,44 @@ export default {
     },
     // 获取粉丝列表
     onloadFans (page = 1) {
+      this.loading = true
       // 后端接口要求：per_page must be within the range 20 - 50
       getFansList({
         page,
         per_page: this.pageSize
       }).then(res => {
         console.log(res)
+        this.$message({
+          type: 'success',
+          message: '获取粉丝列表成功'
+        })
         this.fans = res.data.data.results
+        this.totalCount = res.data.data.total_count
+        // 关闭loading
+        this.loading = false
+      }).catch(err => {
+        console.log('错误：' + err)
+        this.$message.error('获取粉丝列表失败')
       })
+    },
+    onCurrentChange (page) { // 默认回调参数是当前页
+      this.onloadFans(page)
     }
   },
   mounted () {}
 }
 </script>
 <style lang='less' scoped>
+.block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px;
+  border: 1px dashed #ccc;
+  font-size: 12px;
+  padding: 10px 0;
+}
+.fans-page {
+  margin-top: 10px;
+}
 </style>
