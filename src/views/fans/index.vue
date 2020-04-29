@@ -59,7 +59,9 @@
         <el-tab-pane
           label="粉丝画像"
           name="second"
-        >粉丝画像</el-tab-pane>
+        >
+          <fans-echarts></fans-echarts>
+        </el-tab-pane>
       </el-tabs>
     </el-card>
   </div>
@@ -67,10 +69,13 @@
 
 <script>
 import { getFansList } from '@/api/fans'
+import FansEcharts from './components/echarts'
 export default {
   name: 'FansIndex',
   props: {},
-  components: {},
+  components: {
+    FansEcharts
+  },
   data () {
     return {
       activeName: 'first',
