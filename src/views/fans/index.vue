@@ -12,7 +12,6 @@
       <el-tabs
         v-model="activeName"
         type="card"
-        @tab-click="handleClick"
       >
         <el-tab-pane
           label="粉丝列表"
@@ -92,9 +91,6 @@ export default {
     this.onloadFans()
   },
   methods: {
-    handleClick (tab, event) {
-      console.log(tab, event)
-    },
     // 获取粉丝列表
     onloadFans (page = 1) {
       this.loading = true
