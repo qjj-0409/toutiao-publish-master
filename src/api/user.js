@@ -26,4 +26,12 @@ export const getUserProfile = () => {
   })
 }
 
-// 修改用户信息
+// 更新用户头像
+export const updataUserPhoto = data => {
+  // const user = JSON.parse(window.localStorage.getItem('user'))
+  return request({
+    method: 'PATCH',
+    url: '/mp/v1_0/user/photo',
+    data
+  })
+}

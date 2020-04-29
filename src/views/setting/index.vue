@@ -62,14 +62,23 @@
       :visible.sync="dialogVisible"
       append-to-body
       width="30%"
+      @opened="onDialogOpend"
+      @closed="onDialogClosed"
     >
-      <img
-        class="previewImage"
-        :src="previewImage"
-        alt="">
+      <div class="preview-image-wrap">
+        <img
+          class="preview-image"
+          ref="preview-image"
+          :src="previewImage"
+        >
+      </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button
+          type="primary"
+          @click="onUpdatePhoto"
+          :disabled="loading"
+        >确 定</el-button>
       </span>
     </el-dialog>
     <!-- /弹出层 -->
@@ -77,23 +86,19 @@
 </template>
 
 <script>
-import { getUserProfile } from '@/api/user'
+import {
+  getUserProfile,
+  updataUserPhoto
+} from '@/api/user'
+// 引入cropperjs的css和js文件
+import 'cropperjs/dist/cropper.css'
+import Cropper from 'cropperjs'
 export default {
   name: 'SettingIndex',
   props: {},
   components: {},
   data () {
     return {
-      form: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
-      },
       user: {
         id: null, // id编号
         name: '', // 媒体名称
@@ -103,7 +108,9 @@ export default {
         mobile: '' // 手机号
       },
       dialogVisible: false, // 是否显示弹出层对话框
-      previewImage: '' // 预览图片路径
+      previewImage: '', // 预览图片路径
+      cropper: null, // cropper剪切器实例
+      loading: false // 对话框中点击确定，加载中
     }
   },
   computed: {},
@@ -131,13 +138,62 @@ export default {
       this.dialogVisible = true
       // 解决选择相同文件不触发change事件问题
       this.$refs.file.value = ''
+    },
+    onDialogOpend () {
+      // 获取图片的DOM节点
+      const image = this.$refs['preview-image']
+      // 初始化裁剪器
+      this.cropper = new Cropper(image, {
+        aspectRatio: 1, // 裁剪框比例
+        viewMode: 1 // 限制裁切框移动范围不超过图片
+      // 当你移动裁剪框的时候调用crop方法
+      // crop(event) {
+      //   console.log(event.detail.x);
+      //   console.log(event.detail.y);
+      //   console.log(event.detail.width);
+      //   console.log(event.detail.height);
+      //   console.log(event.detail.rotate);
+      //   console.log(event.detail.scaleX);
+      //   console.log(event.detail.scaleY);
+      // },
+      })
+    },
+    onDialogClosed () {
+      // 销毁裁剪器，重新初始化
+      this.cropper.destroy()
+    },
+    onUpdatePhoto () {
+      // 开启loaging
+      this.loading = true
+      // 获取裁切的图片对象
+      // getCroppedCanvas()方法的返回值是HTMLCanvasElement（canvas对象）
+      // 如果浏览器支持“HTMLCanvasElement.toBlob”，则将裁剪后的图像上传到服务器。
+      // “toBlob”的第二个参数的默认值是“image/png”，如果需要可以更改它
+      this.cropper.getCroppedCanvas().toBlob(file => {
+        const fd = new FormData()
+        fd.append('photo', file)
+        // 请求提交fd，更新用户头像
+        updataUserPhoto(fd).then(res => {
+          // 关闭loading
+          this.loading = false
+          // 关闭对话框
+          this.dialogVisible = false
+          // 更新视图展示
+          // this.user.photo = res.data.data.photo
+          this.user.photo = window.URL.createObjectURL(file)
+        })
+      })
     }
   },
   mounted () {}
 }
 </script>
 <style lang='less' scoped>
-.previewImage {
-  width: 60%;
+.preview-image-wrap {
+  .preview-image {
+    display: block;
+    max-width: 100%;
+    height: 200px;
+  }
 }
 </style>
