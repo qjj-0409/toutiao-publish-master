@@ -28,10 +28,18 @@ export const getUserProfile = () => {
 
 // 更新用户头像
 export const updataUserPhoto = data => {
-  // const user = JSON.parse(window.localStorage.getItem('user'))
   return request({
     method: 'PATCH',
     url: '/mp/v1_0/user/photo',
+    data
+  })
+}
+
+// 更新用户基本信息
+export const updataUserProfile = data => {
+  return request({
+    method: 'PATCH',
+    url: '/mp/v1_0/user/profile',
     data
   })
 }

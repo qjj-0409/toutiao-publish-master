@@ -47,6 +47,8 @@
 <script>
 import AppAside from './components/aside'
 import { getUserProfile } from '@/api/user'
+// 导入global-bus全局通信总线
+import globalBus from '@/utils/global-bus'
 export default {
   name: 'layoutIndex',
   props: {},
@@ -88,6 +90,10 @@ export default {
   created () {
     // 组件初始化后，请求获取用户信息
     this.loadUserProfile()
+    globalBus.$on('updateUser', data => {
+      this.user.name = data.name
+      this.user.photo = data.photo
+    })
   },
   mounted () {},
   beforeDestroy () {}

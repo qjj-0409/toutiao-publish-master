@@ -12,24 +12,33 @@
       <el-row>
         <!-- 表单区域 -->
         <el-col :span="10">
-          <el-form ref="form" :model="user" label-width="80px">
+          <el-form
+            ref="form"
+            :rules="rules"
+            :model="user"
+            label-width="90px"
+          >
             <el-form-item label="编号:">
               {{user.id}}
             </el-form-item>
             <el-form-item label="手机:">
               {{user.mobile}}
             </el-form-item>
-            <el-form-item label="媒体名称:">
+            <el-form-item prop="name" label="媒体名称:">
               <el-input v-model="user.name"></el-input>
             </el-form-item>
-            <el-form-item label="媒体介绍:">
+            <el-form-item prop="intro" label="媒体介绍:">
               <el-input type="textarea" v-model="user.intro"></el-input>
             </el-form-item>
-            <el-form-item label="邮箱:">
+            <el-form-item prop="email" label="邮箱:">
               <el-input v-model="user.email"></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="onSubmit">保存设置</el-button>
+              <el-button
+                type="primary"
+                :loading="updataUserLoading"
+                @click="onUpdateUserInfo"
+              >保存设置</el-button>
             </el-form-item>
           </el-form>
         </el-col>
@@ -77,7 +86,7 @@
         <el-button
           type="primary"
           @click="onUpdatePhoto"
-          :disabled="loading"
+          :loading="updatePhotoLoading"
         >确 定</el-button>
       </span>
     </el-dialog>
@@ -88,11 +97,14 @@
 <script>
 import {
   getUserProfile,
-  updataUserPhoto
+  updataUserPhoto,
+  updataUserProfile
 } from '@/api/user'
 // 引入cropperjs的css和js文件
 import 'cropperjs/dist/cropper.css'
 import Cropper from 'cropperjs'
+// 引入global-bus全局通信总线
+import globalBus from '@/utils/global-bus'
 export default {
   name: 'SettingIndex',
   props: {},
@@ -107,10 +119,24 @@ export default {
         email: '', // 邮箱
         mobile: '' // 手机号
       },
+      rules: {
+        name: [
+          { required: true, message: '请输入媒体名称', trigger: 'blur' },
+          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+        ],
+        intro: [
+          { required: true, message: '请输入媒体介绍', trigger: 'blur' }
+        ],
+        email: [
+          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          { pattern: /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/, message: '请输入正确的邮箱格式', trigger: 'blur' }
+        ]
+      },
       dialogVisible: false, // 是否显示弹出层对话框
       previewImage: '', // 预览图片路径
       cropper: null, // cropper剪切器实例
-      loading: false // 对话框中点击确定，加载中
+      updatePhotoLoading: false, // 上传头像的loading
+      updataUserLoading: false // 更新用户信息的loadin
     }
   },
   computed: {},
@@ -119,8 +145,35 @@ export default {
     this.uploadUserInfo()
   },
   methods: {
-    onSubmit () {
-      console.log('submit!')
+    onUpdateUserInfo () {
+      // 点击按钮，开启loading
+      this.updataUserLoading = true
+      // 表单验证
+      this.$refs.form.validate(valid => {
+        // 如果表达验证失败，停止请求提交
+        if (!valid) {
+          // 关闭loading
+          this.updataUserLoading = false
+          return
+        }
+        // 验证通过
+        updataUserProfile(this.user).then(res => {
+          // 保存成功，关闭loading
+          this.updataUserLoading = false
+          this.$message({
+            type: 'success',
+            message: '保存成功'
+          })
+          // 发布通信事件
+          globalBus.$emit('updateUser', this.user)
+        }).catch(err => {
+          console.log('错误：' + err)
+          this.$message({
+            type: 'waring',
+            message: '更改失败'
+          })
+        })
+      })
     },
     // 获取用户个人信息
     uploadUserInfo () {
@@ -164,7 +217,7 @@ export default {
     },
     onUpdatePhoto () {
       // 开启loaging
-      this.loading = true
+      this.updatePhotoLoading = true
       // 获取裁切的图片对象
       // getCroppedCanvas()方法的返回值是HTMLCanvasElement（canvas对象）
       // 如果浏览器支持“HTMLCanvasElement.toBlob”，则将裁剪后的图像上传到服务器。
@@ -175,12 +228,14 @@ export default {
         // 请求提交fd，更新用户头像
         updataUserPhoto(fd).then(res => {
           // 关闭loading
-          this.loading = false
+          this.updatePhotoLoading = false
           // 关闭对话框
           this.dialogVisible = false
           // 更新视图展示
           // this.user.photo = res.data.data.photo
           this.user.photo = window.URL.createObjectURL(file)
+          // 发布通信事件
+          globalBus.$emit('updateUser', this.user)
         })
       })
     }
