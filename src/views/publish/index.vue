@@ -32,6 +32,20 @@
         <el-radio :label="0">无图</el-radio>
         <el-radio :label="-1">自动</el-radio>
         </el-radio-group>
+        <template v-if="article.cover.type > 0">
+          <upload-cover
+            v-for="(cover, index) in article.cover.type"
+            :key="cover"
+            v-model="article.cover.images[index]"
+          ></upload-cover>
+          <!-- <upload-cover
+            v-for="(cover, index) in article.cover.type"
+            :key="cover"
+            v-model="article.cover.images[index]"
+            :cover-image="article.cover.images[index]"
+            @update-cover="onUpdateCover(index, $event)"
+          ></upload-cover> -->
+        </template>
       </el-form-item>
       <el-form-item label="频道" prop="channel_id">
         <el-select
@@ -88,6 +102,7 @@ import {
 } from 'element-tiptap'
 // 2.导入富文本编辑器样式文件
 import 'element-tiptap/lib/index.css'
+import UploadCover from './components/upload-cover'
 
 // 导入图片上传接口
 import { uploadImage } from '@/api/image.js'
@@ -96,6 +111,7 @@ export default {
   name: 'PublishIndex',
   props: {},
   components: {
+    UploadCover,
     // 3.局部引入element-tiptap组件
     'el-tiptap': ElementTiptap
   },
@@ -106,7 +122,7 @@ export default {
         title: '',
         content: '',
         cover: {
-          type: 0,
+          type: 1, // 1 单图，3 三图，0 无图，-1 自动
           images: []
         },
         channel_id: null
@@ -220,6 +236,10 @@ export default {
         console.log('错误信息：' + err)
         this.$message.error('修改文章内容失败')
       })
+    },
+    onUpdateCover (index, url) {
+      console.log(index, url)
+      this.article.cover.images[index] = url
     }
   },
   mounted () {}

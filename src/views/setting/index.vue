@@ -136,7 +136,7 @@ export default {
       previewImage: '', // 预览图片路径
       cropper: null, // cropper剪切器实例
       updatePhotoLoading: false, // 上传头像的loading
-      updataUserLoading: false // 更新用户信息的loadin
+      updataUserLoading: false // 更新用户信息的loading
     }
   },
   computed: {},
@@ -195,6 +195,10 @@ export default {
     onDialogOpend () {
       // 获取图片的DOM节点
       const image = this.$refs['preview-image']
+      // 如果已经有了裁切器实例，则更换为新的图片的url
+      // if (this.cropper) {
+      //   this.cropper.replace(this.previewImage)
+      // }
       // 初始化裁剪器
       this.cropper = new Cropper(image, {
         aspectRatio: 1, // 裁剪框比例
