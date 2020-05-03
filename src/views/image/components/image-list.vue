@@ -1,12 +1,6 @@
 <template>
   <div class="image-container">
     <el-card class="box-card">
-      <div slot="header" class="clearfix">
-        <el-breadcrumb separator="/">
-          <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-          <el-breadcrumb-item>素材管理</el-breadcrumb-item>
-        </el-breadcrumb>
-      </div>
       <div style="padding-bottom:20px" class="image-flex">
         <el-radio-group
          v-model="collect"

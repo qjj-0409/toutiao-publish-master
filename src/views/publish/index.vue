@@ -32,20 +32,22 @@
         <el-radio :label="0">无图</el-radio>
         <el-radio :label="-1">自动</el-radio>
         </el-radio-group>
-        <template v-if="article.cover.type > 0">
-          <upload-cover
-            v-for="(cover, index) in article.cover.type"
-            :key="cover"
-            v-model="article.cover.images[index]"
-          ></upload-cover>
-          <!-- <upload-cover
-            v-for="(cover, index) in article.cover.type"
-            :key="cover"
-            v-model="article.cover.images[index]"
-            :cover-image="article.cover.images[index]"
-            @update-cover="onUpdateCover(index, $event)"
-          ></upload-cover> -->
-        </template>
+        <div class="upload-main">
+          <template v-if="article.cover.type > 0">
+            <upload-cover
+              v-for="(cover, index) in article.cover.type"
+              :key="cover"
+              v-model="article.cover.images[index]"
+            ></upload-cover>
+            <!-- <upload-cover
+              v-for="(cover, index) in article.cover.type"
+              :key="cover"
+              v-model="article.cover.images[index]"
+              :cover-image="article.cover.images[index]"
+              @update-cover="onUpdateCover(index, $event)"
+            ></upload-cover> -->
+          </template>
+        </div>
       </el-form-item>
       <el-form-item label="频道" prop="channel_id">
         <el-select
@@ -246,4 +248,10 @@ export default {
 }
 </script>
 <style lang='less' scoped>
+.upload-main {
+  display: flex;
+  .upload-cover {
+    margin-right: 20px;
+  }
+}
 </style>

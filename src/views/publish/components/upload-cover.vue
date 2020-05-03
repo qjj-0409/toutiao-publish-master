@@ -27,16 +27,19 @@
           ></image-list>
         </el-tab-pane>
         <el-tab-pane label="上传图片" name="second">
-          <input
+         <input
             type="file"
             id="file"
             ref="file"
+            hidden
             @change="uploadImageChange"
           >
-          <img
-            id="preview-image"
-            ref="preview-image"
-          >
+          <label for="file">
+            <img
+              id="preview-image"
+              ref="preview-image"
+            >
+          </label>
         </el-tab-pane>
       </el-tabs>
       <span slot="footer" class="dialog-footer">
@@ -133,7 +136,7 @@ export default {
   }
 }
 #preview-image {
-  width: 100px;
-  height: 100px;
+  width: 150px;
+  height: 160px;
 }
 </style>
