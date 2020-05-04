@@ -4,7 +4,7 @@
 <div>
 <!-- <div class="aside-logo"></div> -->
 <el-menu
-  default-active="$route.path"
+  :default-active="$route.path"
   text-color="#fff"
   background-color="#002033"
   active-text-color="#ffd04b"
